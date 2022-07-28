@@ -1,0 +1,16 @@
+﻿<Project>
+  <PropertyGroup>
+    <LangVersion>9</LangVersion>
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(Version)-$(VersionSuffix)</Version>
+    <!-- <NoWarn>$(NoWarn);CS1591;CS0436</NoWarn> -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>
