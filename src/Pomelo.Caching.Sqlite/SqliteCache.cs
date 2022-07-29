@@ -38,6 +38,7 @@ namespace Pomelo.Caching.Sqlite
             if (cacheItem != null)
             {
                 _dbContext.Remove(cacheItem);
+                _dbContext.SaveChanges();
             }
         }
 
