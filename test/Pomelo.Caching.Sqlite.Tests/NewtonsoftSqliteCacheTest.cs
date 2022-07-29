@@ -8,24 +8,24 @@ namespace Pomelo.Caching.Sqlite.Tests
 {
     public class NewtonsoftSqliteCache
     {
-        private readonly ServiceProvider _services;
+        private readonly IMemoryCache cache;
 
         public NewtonsoftSqliteCache()
         {
-            _services = new ServiceCollection()
+            cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
                 {
                     conf.Path = "sqlite_cache_newtonsoft.db";
                     conf.PrugeOnStartup = false;
                     conf.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
-                .BuildServiceProvider();
+                .BuildServiceProvider()
+                .GetRequiredService<IMemoryCache>();
         }
 
         [Fact]
         public void TryGetValue_ForNotExisted_ReturnFalse()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             var existed = cache.TryGetValue("TryGetValue_ForNotExisted_ReturnFalse", out Object value);
 
             Assert.False(existed);
@@ -36,7 +36,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public void TryGetValue_ForExisted_ReturnTrue()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.Set("TryGetValue_ForExisted_ReturnTrue", 1024, TimeSpan.FromSeconds(1));
 
             var existed = cache.TryGetValue("TryGetValue_ForExisted_ReturnTrue", out Object value);
@@ -47,7 +46,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public void CreateEntry_ThenDispose_CachingSpecified()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.CreateEntry("CreateEntry_ThenDispose_CachingSpecified")
                 .SetValue("Hello")
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(1))
@@ -62,7 +60,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public void CreateEntry_ForgetDispose_CachingNothing()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.CreateEntry("CreateEntry_ForgetDispose_CachingNothing")
                 .SetValue("Hello")
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
@@ -76,7 +73,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public async Task AbsoluteExpiration()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.Set("AbsoluteExpiration", Guid.NewGuid(), DateTime.Now.Add(TimeSpan.FromSeconds(1)));
 
             await Task.Delay(TimeSpan.FromSeconds(1.1));
@@ -88,7 +84,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public async Task AbsoluteExpirationRelativeToNow()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.Set("AbsoluteExpirationRelativeToNow", Guid.NewGuid(), TimeSpan.FromSeconds(1));
 
             await Task.Delay(TimeSpan.FromSeconds(1.1));
@@ -99,7 +94,6 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public async Task SlidingExpiration()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             cache.CreateEntry("SlidingExpiration")
                 .SetValue("Hello")
                 .SetSlidingExpiration(TimeSpan.FromSeconds(1.5))
