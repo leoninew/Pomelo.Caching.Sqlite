@@ -2,22 +2,23 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Pomelo.Caching.Sqlite.Tests
 {
-    public class TextJsonSqliteCache
+    public class BinarySqliteCacheTest
     {
         private readonly IMemoryCache cache;
 
-        public TextJsonSqliteCache()
+        public BinarySqliteCacheTest()
         {
             cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
                 {
-                    conf.Path = "sqlite_cache_system.db";
+                    conf.Path = "sqlite_cache_binary.db";
                     conf.PrugeOnStartup = false;
-                    conf.Serializer = new TextJsonSqliteCacheSerializer();
+                    conf.Serializer = new BinarySqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
                 .GetRequiredService<IMemoryCache>();
@@ -174,6 +175,29 @@ namespace Pomelo.Caching.Sqlite.Tests
             var key = "SetNumber_GetString_ThrowInvalidCastException";
             cache.Set(key, 1024);
             Assert.Throws<InvalidCastException>(() => cache.Get<String>(key));
+        }
+    }
+
+    [Serializable]
+    class Student : IEquatable<Student>
+    {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public String Name { get; set; }
+        public DateTime Birth { get; set; }
+        public String[] Address { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+        public bool Equals(Student? other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return String.Equals(
+                JsonConvert.SerializeObject(this),
+                JsonConvert.SerializeObject(other),
+                StringComparison.Ordinal);
         }
     }
 }

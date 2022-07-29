@@ -43,10 +43,33 @@ namespace Pomelo.Caching.Sqlite
             get { return _cacheItem.Value; }
             set
             {
-                var json = _cacheSerializer.SerializeObject(value);
-                if (json != _cacheItem.Value)
+                if (value == null)
                 {
-                    _cacheItem.Value = json;
+                    _cacheItem.Type = null;
+                    _cacheItem.Value = "null";
+                    _cacheItem.Size = 4;
+                }
+                else
+                {
+                    var type = value.GetType();
+                    if (type.IsNestedPrivate)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(value), "nested private value not supported");
+                    }
+
+                    var typeName = type.FullName;
+                    if (type.IsPrimitive == false)
+                    {
+                        typeName += ", " + type.Assembly.GetName().Name;
+                    }
+
+                    _cacheItem.Type = typeName;
+                    var json = _cacheSerializer.SerializeObject(value);
+                    if (json != _cacheItem.Value)
+                    {
+                        _cacheItem.Value = json;
+                        _cacheItem.Size = json.Length;
+                    }
                 }
             }
         }

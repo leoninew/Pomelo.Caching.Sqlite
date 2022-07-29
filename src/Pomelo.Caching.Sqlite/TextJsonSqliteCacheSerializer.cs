@@ -46,9 +46,9 @@ namespace Pomelo.Caching.Sqlite
             return JsonSerializer.Serialize(value, Default);
         }
 
-        public Object? DeserializeObject(String value)
+        public Object? DeserializeObject(String value, Type type)
         {
-            return JsonSerializer.Deserialize<Object>(value, Default);
+            return JsonSerializer.Deserialize(value, type, Default);
         }
     }
 }

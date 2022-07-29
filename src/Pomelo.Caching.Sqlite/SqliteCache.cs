@@ -38,13 +38,14 @@ namespace Pomelo.Caching.Sqlite
             if (cacheItem != null)
             {
                 _dbContext.Remove(cacheItem);
+                _dbContext.SaveChanges();
             }
         }
 
         public bool TryGetValue(Object key, out Object? value)
         {
             var cacheItem = _dbContext.CacheItems.Find(key);
-            if (cacheItem == null || cacheItem.HasExpired())
+            if (cacheItem == null || cacheItem.Type == null || cacheItem.HasExpired())
             {
                 value = null;
                 return false;
@@ -55,7 +56,14 @@ namespace Pomelo.Caching.Sqlite
                 _dbContext.SaveChanges();
             }
 
-            value = _cacheSerializer.DeserializeObject(cacheItem.Value);
+            var type = Type.GetType(cacheItem.Type);
+            if (type == null)
+            {
+                value = null;
+                return false;
+            }
+
+            value = _cacheSerializer.DeserializeObject(cacheItem.Value, type);
             return true;
         }
     }

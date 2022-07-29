@@ -2,59 +2,58 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Pomelo.Caching.Sqlite.Tests
 {
     public class NewtonsoftSqliteCache
     {
-        private readonly ServiceProvider _services;
+        private readonly IMemoryCache cache;
 
         public NewtonsoftSqliteCache()
         {
-            _services = new ServiceCollection()
+            cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
                 {
                     conf.Path = "sqlite_cache_newtonsoft.db";
                     conf.PrugeOnStartup = false;
                     conf.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
-                .BuildServiceProvider();
+                .BuildServiceProvider()
+                .GetRequiredService<IMemoryCache>();
         }
 
         [Fact]
         public void TryGetValue_ForNotExisted_ReturnFalse()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
             var existed = cache.TryGetValue("TryGetValue_ForNotExisted_ReturnFalse", out Object value);
 
             Assert.False(existed);
             Assert.Null(value);
         }
 
-
         [Fact]
         public void TryGetValue_ForExisted_ReturnTrue()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.Set("TryGetValue_ForExisted_ReturnTrue", 1024, TimeSpan.FromSeconds(1));
+            var key = "TryGetValue_ForExisted_ReturnTrue";
+            cache.Set(key, 1024, TimeSpan.FromSeconds(1));
 
-            var existed = cache.TryGetValue("TryGetValue_ForExisted_ReturnTrue", out Object value);
+            var existed = cache.TryGetValue(key, out Object value);
             Assert.True(existed);
-            // NOTE: int to long
-            Assert.Equal(1024L, value);
+            Assert.Equal(1024, value);
         }
 
         [Fact]
         public void CreateEntry_ThenDispose_CachingSpecified()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.CreateEntry("CreateEntry_ThenDispose_CachingSpecified")
+            var key = "CreateEntry_ThenDispose_CachingSpecified";
+            cache.CreateEntry(key)
                 .SetValue("Hello")
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(1))
                 .Dispose();
 
-            var existed = cache.TryGetValue("CreateEntry_ThenDispose_CachingSpecified", out Object value);
+            var existed = cache.TryGetValue(key, out Object value);
             Assert.True(existed);
             Assert.Equal("Hello", value);
         }
@@ -63,13 +62,13 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public void CreateEntry_ForgetDispose_CachingNothing()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.CreateEntry("CreateEntry_ForgetDispose_CachingNothing")
+            var key = "CreateEntry_ForgetDispose_CachingNothing";
+            cache.CreateEntry(key)
                 .SetValue("Hello")
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
             //.Dispose();
 
-            var existed = cache.TryGetValue("CreateEntry_ForgetDispose_CachingNothing", out Object value);
+            var existed = cache.TryGetValue(key, out Object value);
             Assert.False(existed);
             Assert.Null(value);
         }
@@ -77,11 +76,11 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public async Task AbsoluteExpiration()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.Set("AbsoluteExpiration", Guid.NewGuid(), DateTime.Now.Add(TimeSpan.FromSeconds(1)));
+            var key = "AbsoluteExpiration";
+            cache.Set(key, Guid.NewGuid(), DateTime.Now.Add(TimeSpan.FromSeconds(1)));
 
             await Task.Delay(TimeSpan.FromSeconds(1.1));
-            var existed = cache.TryGetValue("AbsoluteExpiration", out _);
+            var existed = cache.TryGetValue(key, out _);
             Assert.False(existed);
         }
 
@@ -89,24 +88,24 @@ namespace Pomelo.Caching.Sqlite.Tests
         [Fact]
         public async Task AbsoluteExpirationRelativeToNow()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.Set("AbsoluteExpirationRelativeToNow", Guid.NewGuid(), TimeSpan.FromSeconds(1));
+            var key = "AbsoluteExpirationRelativeToNow";
+            cache.Set(key, Guid.NewGuid(), TimeSpan.FromSeconds(1));
 
             await Task.Delay(TimeSpan.FromSeconds(1.1));
-            var existed = cache.TryGetValue("AbsoluteExpirationRelativeToNow", out _);
+            var existed = cache.TryGetValue(key, out _);
             Assert.False(existed);
         }
 
         [Fact]
         public async Task SlidingExpiration()
         {
-            var cache = _services.GetRequiredService<IMemoryCache>();
-            cache.CreateEntry("SlidingExpiration")
+            var key = "SlidingExpiration";
+            cache.CreateEntry(key)
                 .SetValue("Hello")
                 .SetSlidingExpiration(TimeSpan.FromSeconds(1.5))
                 .Dispose();
 
-            var existed = cache.TryGetValue("SlidingExpiration", out Object value);
+            var existed = cache.TryGetValue(key, out Object value);
             Assert.True(existed);
             Assert.Equal("Hello", value);
 
@@ -124,6 +123,58 @@ namespace Pomelo.Caching.Sqlite.Tests
             await Task.Delay(TimeSpan.FromSeconds(2));
             existed = cache.TryGetValue("SlidingExpiration", out _);
             Assert.False(existed);
+        }
+
+
+        [Fact]
+        public void SetValue_ThenRemove_ReturnFalse()
+        {
+            var key = "SetValue_ThenRemove_ReturnFalse";
+            cache.Set(key, new Object());
+            cache.Remove(key);
+            var existed = cache.TryGetValue(key, out _);
+            Assert.False(existed);
+        }
+
+        [Fact]
+        public void SetPrimitive_ThenGet_ReturnPrimitive()
+        {
+            var key = "SetPrimitive_ThenGet_ReturnPrimitive";
+            var value = (Byte)128;
+            cache.Set(key, value);
+            var value1 = cache.Get(key);
+            Assert.Equal(value1, value);
+            var value2 = cache.Get<Byte>(key);
+            Assert.Equal(value2, value);
+        }
+
+        [Fact]
+        public void SetComposite_ThenGet_ReturnComposite()
+        {
+            var key = "SetComposite_ThenGet_ReturnComposite";
+            var value = new Student
+            {
+                Name = "Rattz",
+                Birth = DateTime.Now,
+                Address = new[]
+                {
+                    "Raymond",
+                    "Minx",
+                }
+            };
+            cache.Set(key, value);
+            var value1 = cache.Get(key);
+            Assert.Equal(value1, value);
+            var value2 = cache.Get<Student>(key);
+            Assert.Equal(value2, value);
+        }
+
+        [Fact]
+        public void SetNumber_GetString_ThrowInvalidCastException()
+        {
+            var key = "SetNumber_GetString_ThrowInvalidCastException";
+            cache.Set(key, 1024);
+            Assert.Throws<InvalidCastException>(() => cache.Get<String>(key));
         }
     }
 }
