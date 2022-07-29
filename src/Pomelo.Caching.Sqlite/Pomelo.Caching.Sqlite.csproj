@@ -3,7 +3,11 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
-		<Version>1.0-beta</Version>
+		<Version>1.1.0</Version>
+		<Description>Microsoft.Extensions.Caching.Memory extension via SQLite</Description>
+		<Authors>Leoninew</Authors>
+		<RepositoryUrl>https://github.com/leoninew/Pomelo.Caching.Sqlite</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/leoninew/Pomelo.Caching.Sqlite</PackageProjectUrl>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

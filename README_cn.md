@@ -1,14 +1,14 @@
-## Quick Start
+## 快速开始
 
-1. add dependency
+1. 添加依赖
 
 ```c#
 dotnet add package Pomelo.Caching.Sqlite --version 1.1.0
 ```
 
-2. usage
+2. 基本使用
 
-Use it as well as `IMemoryCache`.
+和 `IMemoryCache` 的常规用法一样
 
 ```c#
 using Microsoft.Extensions.Caching.Memory;
@@ -25,7 +25,7 @@ cache.Set("time", DateTime.Now, TimeSpan.FromSeconds(10));
 var time = cache.Get<DateTime>("time");
 ```
 
-Newtonsoft.Json should be used for serialize and deserialize which could be changed via configure
+默认情况下项目使用 Newtonsoft.Json 进行序列化和反序列化，也支持配置时修改
 
 ```c#
     .AddSqliteCache(conf =>
@@ -37,15 +37,15 @@ Newtonsoft.Json should be used for serialize and deserialize which could be chan
     })
 ```
 
-## What you should know
+## 你应该知道的
 
-1. SQLite is much more slower than memory
-2. NOT everything can be serialized and deserialized since we use sqlite to store
-3. IChangeToken is absent here
+1. SQLite 比内存要慢得多得多
+2. **并不是**所有的东西都可以序列化和反序列化，因为我们存储到了 SQLite 
+3. IChangeToken 目前还没有支持
 
-## Why This Project?
+## 为什么有这样一个项目
 
-Using `IMemoryCache` is not enough in some particular scene.
+部分场景下使用 `IMemoryCache` 是不够的
 
-1. Memory is expensive, performance is not that sensitive.
-2. Visualization of the cache is useful
+1. 内存很昂贵， 性能却不是那么敏感
+2. 缓存的可视化很用
