@@ -20,7 +20,9 @@ namespace Pomelo.Caching.Sqlite
             {
                 WriteIndented = false,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+#if !NETSTANDARD2_0
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#endif
             };
             Default.Converters.Add(new JsonStringEnumConverter());
 
@@ -32,7 +34,9 @@ namespace Pomelo.Caching.Sqlite
                 WriteIndented = false,
                 // Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+#if !NETSTANDARD2_0
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+#endif
             };
             CamelCase.Converters.Add(new JsonStringEnumConverter());
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using Pomelo.Caching.Sqlite;
 
 
 namespace Pomelo.Caching.Sqlite
@@ -18,8 +17,8 @@ namespace Pomelo.Caching.Sqlite
         public SqliteCacheEntry(String cacheKey, SqliteCacheContext dbContext, ISqliteCacheSerializer cacheSerializer)
         {
             _dbContext = dbContext;
-            _cacheItem = _dbContext.CacheItems.Find(cacheKey);
-            if (_cacheItem == null)
+            var cacheItem = _dbContext.CacheItems.Find(cacheKey);
+            if (cacheItem == null)
             {
                 _cacheItem = new SqliteCacheItem
                 {
@@ -30,6 +29,7 @@ namespace Pomelo.Caching.Sqlite
             }
             else
             {
+                _cacheItem = cacheItem;
                 _cacheItem.CreateAt = DateTime.Now;
                 _cacheItem.UpdateAt = null;
             }
