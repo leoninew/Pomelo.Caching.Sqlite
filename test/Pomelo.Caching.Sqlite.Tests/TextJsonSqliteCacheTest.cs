@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,8 +41,7 @@ namespace Pomelo.Caching.Sqlite.Tests
 
             var existed = cache.TryGetValue("TryGetValue_ForExisted_ReturnTrue", out Object value);
             Assert.True(existed);
-            var element = Assert.IsType<JsonElement>(value);
-            Assert.Equal(1024, element.GetInt32());
+            Assert.Equal(1024, value);
         }
 
         [Fact]
@@ -57,8 +55,7 @@ namespace Pomelo.Caching.Sqlite.Tests
 
             var existed = cache.TryGetValue("CreateEntry_ThenDispose_CachingSpecified", out Object value);
             Assert.True(existed);
-            var element = Assert.IsType<JsonElement>(value);
-            Assert.Equal("Hello", element.GetString());
+            Assert.Equal("Hello", value);
         }
 
 
@@ -110,8 +107,7 @@ namespace Pomelo.Caching.Sqlite.Tests
 
             var existed = cache.TryGetValue("SlidingExpiration", out Object value);
             Assert.True(existed);
-            var element = Assert.IsType<JsonElement>(value);
-            Assert.Equal("Hello", element.GetString());
+            Assert.Equal("Hello", value);
 
             // delay 1s
             await Task.Delay(TimeSpan.FromSeconds(1));

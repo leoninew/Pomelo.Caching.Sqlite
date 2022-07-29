@@ -41,8 +41,7 @@ namespace Pomelo.Caching.Sqlite.Tests
 
             var existed = cache.TryGetValue("TryGetValue_ForExisted_ReturnTrue", out Object value);
             Assert.True(existed);
-            // NOTE: int to long
-            Assert.Equal(1024L, value);
+            Assert.Equal(1024, value);
         }
 
         [Fact]

@@ -43,10 +43,19 @@ namespace Pomelo.Caching.Sqlite
             get { return _cacheItem.Value; }
             set
             {
-                var json = _cacheSerializer.SerializeObject(value);
-                if (json != _cacheItem.Value)
+                if (value == null)
                 {
-                    _cacheItem.Value = json;
+                    _cacheItem.Type = null;
+                    _cacheItem.Value = "null";
+                }
+                else
+                {
+                    _cacheItem.Type = value.GetType().FullName;
+                    var json = _cacheSerializer.SerializeObject(value);
+                    if (json != _cacheItem.Value)
+                    {
+                        _cacheItem.Value = json;
+                    }
                 }
             }
         }
