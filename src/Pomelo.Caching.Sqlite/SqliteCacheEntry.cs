@@ -40,7 +40,7 @@ namespace Pomelo.Caching.Sqlite
 
         public Object Value
         {
-            get { return _cacheItem.Value; }
+            get { return _cacheItem.Value!; }
             set
             {
                 if (value == null)
