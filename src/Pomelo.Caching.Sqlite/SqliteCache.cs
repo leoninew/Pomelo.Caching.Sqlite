@@ -45,7 +45,7 @@ namespace Pomelo.Caching.Sqlite
         public bool TryGetValue(Object key, out Object? value)
         {
             var cacheItem = _dbContext.CacheItems.Find(key);
-            if (cacheItem == null || cacheItem.Type == null || cacheItem.HasExpired())
+            if (cacheItem == null || cacheItem.Value == null || cacheItem.Type == null || cacheItem.HasExpired())
             {
                 value = null;
                 return false;

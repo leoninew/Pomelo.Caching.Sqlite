@@ -22,7 +22,7 @@ namespace Pomelo.Caching.Sqlite
             }
 
             services
-               .AddDbContext<SqliteCacheContext>(
+               .AddDbContext<DbContext, SqliteCacheContext>(
                    builder => builder.UseSqlite("Data Source=" + options.Path),
                    contextLifetime: ServiceLifetime.Transient);
 
