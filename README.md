@@ -3,7 +3,7 @@
 1. add dependency
 
 ```c#
-dotnet add package Pomelo.Caching.Sqlite --version 1.1.0
+dotnet add package Pomelo.Caching.Sqlite --version 1.1.1
 ```
 
 2. usage

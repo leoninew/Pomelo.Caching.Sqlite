@@ -8,9 +8,9 @@ namespace Pomelo.Caching.Sqlite
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public String Key { get; set; }
-        public String Value { get; set; }
-        public String? Type { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public String? Value { get; set; }
+        public String? Type { get; set; }
         public DateTimeOffset? AbsoluteExpiration { get; set; }
         public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
         public TimeSpan? SlidingExpiration { get; set; }
