@@ -3,7 +3,7 @@
 1. add dependency
 
 ```c#
-dotnet add package Pomelo.Caching.Sqlite --version 1.1.1
+dotnet add package Pomelo.Caching.Sqlite
 ```
 
 2. usage
@@ -35,6 +35,12 @@ Newtonsoft.Json should be used for serialize and deserialize which could be chan
         // conf.Serializer = new NewtonsoftSqliteCacheSerializer();
         conf.Serializer = new TextJsonSqliteCacheSerializer();
     })
+```
+
+Cache key prefix is supported
+
+```c#
+    cache.WithPrefix("preifx_");
 ```
 
 ## What you should know
