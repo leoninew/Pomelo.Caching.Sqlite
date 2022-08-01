@@ -3,7 +3,7 @@
 1. 添加依赖
 
 ```c#
-dotnet add package Pomelo.Caching.Sqlite --version 1.1.1
+dotnet add package Pomelo.Caching.Sqlite
 ```
 
 2. 基本使用
@@ -35,6 +35,12 @@ var time = cache.Get<DateTime>("time");
         // conf.Serializer = new NewtonsoftSqliteCacheSerializer();
         conf.Serializer = new TextJsonSqliteCacheSerializer();
     })
+```
+
+支持缓存 key 前缀
+
+```c#
+    cache.WithPrefix("preifx_");
 ```
 
 ## 你应该知道的
