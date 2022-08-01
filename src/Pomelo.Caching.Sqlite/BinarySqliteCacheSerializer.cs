@@ -11,7 +11,7 @@ namespace Pomelo.Caching.Sqlite
 
         public object? DeserializeObject(string value, Type type)
         {
-            var bytes = Encoding.UTF8.GetBytes(value);
+            var bytes = Encoding.ASCII.GetBytes(value);
             using var stream = new MemoryStream(bytes);
             return _binaryFormatter.Deserialize(stream);
         }
@@ -20,7 +20,8 @@ namespace Pomelo.Caching.Sqlite
         {
             using var stream = new MemoryStream();
             _binaryFormatter.Serialize(stream, value);
-            return Encoding.UTF8.GetString(stream.ToArray());
+            stream.Seek(0L, SeekOrigin.Begin);
+            return Encoding.ASCII.GetString(stream.ToArray());
         }
     }
 }

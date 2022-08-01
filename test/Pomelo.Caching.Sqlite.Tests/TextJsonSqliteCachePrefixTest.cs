@@ -6,21 +6,22 @@ using Xunit;
 
 namespace Pomelo.Caching.Sqlite.Tests
 {
-    public class TextJsonSqliteCacheTest
+    public class TextJsonSqliteCachePrefixTest
     {
         private readonly IMemoryCache cache;
 
-        public TextJsonSqliteCacheTest()
+        public TextJsonSqliteCachePrefixTest()
         {
             cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
                 {
-                    conf.Path = "sqlite_cache_system.db";
+                    conf.Path = "sqlite_cache_system_prefix.db";
                     conf.PrugeOnStartup = false;
                     conf.Serializer = new TextJsonSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
-                .GetRequiredService<IMemoryCache>();
+                .GetRequiredService<IMemoryCache>()
+                .WithPrefix("system_");
         }
 
         [Fact]

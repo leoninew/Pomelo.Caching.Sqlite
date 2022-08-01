@@ -2,25 +2,27 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Pomelo.Caching.Sqlite.Tests
 {
-    public class TextJsonSqliteCacheTest
+    public class NewtonsoftSqliteCachePrefixTest
     {
         private readonly IMemoryCache cache;
 
-        public TextJsonSqliteCacheTest()
+        public NewtonsoftSqliteCachePrefixTest()
         {
             cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
                 {
-                    conf.Path = "sqlite_cache_system.db";
+                    conf.Path = "sqlite_cache_newtonsoft_prefix.db";
                     conf.PrugeOnStartup = false;
-                    conf.Serializer = new TextJsonSqliteCacheSerializer();
+                    conf.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
-                .GetRequiredService<IMemoryCache>();
+                .GetRequiredService<IMemoryCache>()
+                .WithPrefix("newtonsoft_");
         }
 
         [Fact]

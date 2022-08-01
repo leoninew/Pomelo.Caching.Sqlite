@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Pomelo.Caching.Sqlite
 {
@@ -8,12 +9,20 @@ namespace Pomelo.Caching.Sqlite
     {
         private readonly SqliteCacheContext _dbContext;
         private readonly ISqliteCacheSerializer _cacheSerializer;
+        private readonly String? _prefix;
 
         public SqliteCache(SqliteCacheContext dbContext, ISqliteCacheSerializer cacheSerializer)
         {
             _dbContext = dbContext;
             _dbContext.Database.EnsureCreated();
             _cacheSerializer = cacheSerializer;
+        }
+
+        public SqliteCache(SqliteCache sqliteCache, String? prefix = null)
+        {
+            _dbContext = sqliteCache._dbContext;
+            _cacheSerializer = sqliteCache._cacheSerializer;
+            _prefix = prefix;
         }
 
         public ICacheEntry CreateEntry(Object key)
@@ -24,7 +33,7 @@ namespace Pomelo.Caching.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(key));
             }
 
-            return new SqliteCacheEntry(keyStr, _dbContext, _cacheSerializer);
+            return new SqliteCacheEntry(_prefix + keyStr, _dbContext, _cacheSerializer);
         }
 
         public void Dispose()
@@ -34,7 +43,7 @@ namespace Pomelo.Caching.Sqlite
 
         public void Remove(Object key)
         {
-            var cacheItem = _dbContext.CacheItems.Find(key);
+            var cacheItem = _dbContext.CacheItems.Find(_prefix + key);
             if (cacheItem != null)
             {
                 _dbContext.Remove(cacheItem);
@@ -44,7 +53,7 @@ namespace Pomelo.Caching.Sqlite
 
         public bool TryGetValue(Object key, out Object? value)
         {
-            var cacheItem = _dbContext.CacheItems.Find(key);
+            var cacheItem = _dbContext.CacheItems.Find(_prefix + key);
             if (cacheItem == null || cacheItem.Value == null || cacheItem.Type == null || cacheItem.HasExpired())
             {
                 value = null;
