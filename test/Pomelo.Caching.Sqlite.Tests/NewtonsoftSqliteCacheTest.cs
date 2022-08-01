@@ -7,11 +7,11 @@ using Xunit;
 
 namespace Pomelo.Caching.Sqlite.Tests
 {
-    public class NewtonsoftSqliteCache
+    public class NewtonsoftSqliteCacheTest
     {
         private readonly IMemoryCache cache;
 
-        public NewtonsoftSqliteCache()
+        public NewtonsoftSqliteCacheTest()
         {
             cache = new ServiceCollection()
                 .AddSqliteCache(conf =>
