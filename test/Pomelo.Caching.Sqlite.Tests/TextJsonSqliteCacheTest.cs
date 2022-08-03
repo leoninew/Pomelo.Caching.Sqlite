@@ -16,7 +16,7 @@ namespace Pomelo.Caching.Sqlite.Tests
                 .AddSqliteCache(conf =>
                 {
                     conf.Path = "sqlite_cache_system.db";
-                    conf.PrugeOnStartup = false;
+                    conf.PurgeOnStartup = false;
                     conf.Serializer = new TextJsonSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
