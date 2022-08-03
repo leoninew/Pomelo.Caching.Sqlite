@@ -31,7 +31,7 @@ var time = cache.Get<DateTime>("time");
     .AddSqliteCache(conf =>
     {
         conf.Path = "sqlite_cache_newtonsoft.db";
-        conf.PrugeOnStartup = false;
+        conf.PurgeOnStartup = false;
         // conf.Serializer = new NewtonsoftSqliteCacheSerializer();
         conf.Serializer = new TextJsonSqliteCacheSerializer();
     })
