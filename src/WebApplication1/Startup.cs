@@ -31,15 +31,15 @@ namespace WebApplication1
             services.Configure<RouteOptions>(opt => opt.LowercaseUrls = true);
             services.AddControllers();
             services.AddSwaggerGen();
-            services.AddSqliteDbContext(options =>
+            services.AddSqliteDbContext<SqliteDbContext>(options =>
             {
                 options.Path = "sqlite.db";
-                options.PrugeOnStartup = true;
+                options.DropOnStartup = false;
             });
             services.AddSqliteCache(options =>
             {
-                options.Path = "cache.db";
-                options.PrugeOnStartup = false;
+                options.Path = "sqlite.db";
+                options.PurgeOnStartup = true;
             });
         }
 
@@ -57,7 +57,7 @@ namespace WebApplication1
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
-            app.EnsureSqliteDbCreated();
+            app.ApplicationServices.EnsureSqliteDbCreated<SqliteDbContext>();
             app.ApplicationServices.EnsureSqliteCacheInitialized();
         }
     }

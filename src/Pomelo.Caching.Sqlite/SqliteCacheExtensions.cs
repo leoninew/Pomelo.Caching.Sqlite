@@ -39,7 +39,7 @@ namespace Pomelo.Caching.Sqlite
 
         private static void ConfigureOptions(SqliteCacheOptions options)
         {
-            options.PrugeOnStartup = true;
+            options.PurgeOnStartup = true;
             options.Path = "cache.db";
         }
 
@@ -59,7 +59,7 @@ namespace Pomelo.Caching.Sqlite
             var options = services.GetRequiredService<IOptions<SqliteCacheOptions>>();
 
             dbContext.Database.EnsureCreated();
-            if (options.Value.PrugeOnStartup)
+            if (options.Value.PurgeOnStartup)
             {
                 // dbContext.Database.EnsureDeleted();
                 dbContext.Database.ExecuteSqlRaw(DropTableSql);
