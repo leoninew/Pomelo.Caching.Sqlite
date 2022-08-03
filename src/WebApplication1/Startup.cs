@@ -31,8 +31,16 @@ namespace WebApplication1
             services.Configure<RouteOptions>(opt => opt.LowercaseUrls = true);
             services.AddControllers();
             services.AddSwaggerGen();
-            services.AddSqliteCache(conf => conf.PrugeOnStartup = true);
-            services.AddSqliteDbContext(conf => conf.Path = "sqlite.db");
+            services.AddSqliteDbContext(options =>
+            {
+                options.Path = "sqlite.db";
+                options.PrugeOnStartup = true;
+            });
+            services.AddSqliteCache(options =>
+            {
+                options.Path = "cache.db";
+                options.PrugeOnStartup = false;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,8 +56,9 @@ namespace WebApplication1
             app.UseSerilogRequestLoggingPro();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(endpoints =>   endpoints.MapControllers());
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
             app.EnsureSqliteDbCreated();
+            app.ApplicationServices.EnsureSqliteCacheInitialized();
         }
     }
 }

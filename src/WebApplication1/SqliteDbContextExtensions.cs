@@ -15,7 +15,7 @@ namespace WebApplication1
             services.AddDbContext<SqliteDbContext>(
                 OptionsAction,
                 contextLifetime: ServiceLifetime.Transient,
-                optionsLifetime: ServiceLifetime.Transient);
+                optionsLifetime: ServiceLifetime.Singleton);
             // services.AddTransient<ICommandExecuteReportRepository, CommandExecuteReportRepository>();
             return services;
         }

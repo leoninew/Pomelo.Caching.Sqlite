@@ -14,7 +14,6 @@ namespace Pomelo.Caching.Sqlite
         public SqliteCache(SqliteCacheContext dbContext, ISqliteCacheSerializer cacheSerializer)
         {
             _dbContext = dbContext;
-            _dbContext.Database.EnsureCreated();
             _cacheSerializer = cacheSerializer;
         }
 
