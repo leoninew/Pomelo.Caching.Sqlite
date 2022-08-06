@@ -39,6 +39,7 @@ namespace WebApplication1
             services.AddSqliteCache(options =>
             {
                 options.Path = "sqlite.db";
+                options.DropOnStartup = false; // drop again would lost some table defined on SqliteDbContext
                 options.PurgeOnStartup = true;
             });
         }

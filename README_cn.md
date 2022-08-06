@@ -15,11 +15,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Pomelo.Caching.Sqlite;
 
-var services = new ServiceCollection()
+var cache = new ServiceCollection()
     .AddSqliteCache(conf => conf.Path = "sqlite_cache.db")
-    .BuildServiceProvider();
+    .BuildServiceProvider()
+    .EnsureSqliteCacheInitialized()
+    .GetRequiredService<IMemoryCache>();
 
-var cache = services.GetRequiredService<IMemoryCache>();
 cache.Set("time", DateTime.Now, TimeSpan.FromSeconds(10));
 
 var time = cache.Get<DateTime>("time");
@@ -28,20 +29,21 @@ var time = cache.Get<DateTime>("time");
 默认情况下项目使用 Newtonsoft.Json 进行序列化和反序列化，也支持配置时修改
 
 ```c#
-    .AddSqliteCache(conf =>
+    .AddSqliteCache(options =>
     {
-        conf.Path = "sqlite_cache_newtonsoft.db";
-        conf.PurgeOnStartup = false;
-        // conf.Serializer = new NewtonsoftSqliteCacheSerializer();
-        conf.Serializer = new TextJsonSqliteCacheSerializer();
+        options.Path = "sqlite_cache_newtonsoft.db";
+        options.PurgeOnStartup = true;
+        options.Serializer = new TextJsonSqliteCacheSerializer();
     })
 ```
 
 支持缓存 key 前缀
 
 ```c#
-    cache.WithPrefix("preifx_");
+    cache = cache.WithPrefix("preifx_");
 ```
+
+从 [src/WebApplication1/Startup.cs](src/WebApplication1/Startup.cs) 获取更多用例
 
 ## 你应该知道的
 
