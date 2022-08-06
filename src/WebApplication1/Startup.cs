@@ -34,7 +34,7 @@ namespace WebApplication1
             services.AddSqliteDbContext<SqliteDbContext>(options =>
             {
                 options.Path = "sqlite.db";
-                options.DropOnStartup = false;
+                options.DropOnStartup = true;
             });
             services.AddSqliteCache(options =>
             {
