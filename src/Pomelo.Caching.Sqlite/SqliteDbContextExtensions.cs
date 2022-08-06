@@ -16,26 +16,28 @@ namespace Pomelo.Caching.Sqlite
                 OptionsAction,
                 contextLifetime: ServiceLifetime.Transient,
                 optionsLifetime: ServiceLifetime.Singleton);
-            // services.AddTransient<ICommandExecuteReportRepository, CommandExecuteReportRepository>();
             return services;
         }
 
         private static void ConfigureOptions(SqliteDbContextOptions options)
         {
             options.DropOnStartup = true;
-            options.Path = "sqlite.db";
+            options.Path = Path.Combine(AppContext.BaseDirectory, "sqlite.db");
         }
 
         private static void OptionsAction(IServiceProvider services, DbContextOptionsBuilder builder)
         {
             var options = services.GetRequiredService<IOptions<SqliteDbContextOptions>>();
-            options.Value.Path = options.Value.Path ?? "sqlite.db";
+            options.Value.Path = options.Value.Path ?? Path.Combine(AppContext.BaseDirectory, "sqlite.db");
             if (options.Value.DropOnStartup && File.Exists(options.Value.Path))
             {
                 File.Delete(options.Value.Path);
             }
 
-            builder.UseSqlite("Data Source=" + options.Value.Path);
+            var path = Path.IsPathRooted(options.Value.Path)
+                ? options.Value.Path
+                : Path.Combine(AppContext.BaseDirectory, options.Value.Path);
+            builder.UseSqlite("Data Source=" + path);
         }
 
         public static void EnsureSqliteDbCreated<TContext>(this IServiceProvider services) where TContext : DbContext

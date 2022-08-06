@@ -39,8 +39,9 @@ namespace Pomelo.Caching.Sqlite
 
         private static void ConfigureOptions(SqliteCacheOptions options)
         {
+            options.DropOnStartup = false;
             options.PurgeOnStartup = true;
-            options.Path = "cache.db";
+            options.Path = Path.Combine(AppContext.BaseDirectory, "cache.db");
         }
 
         private static void OptionsAction(IServiceProvider services, DbContextOptionsBuilder builder)
@@ -49,11 +50,19 @@ namespace Pomelo.Caching.Sqlite
             // builder.UseLoggerFactory(services.GetRequiredService<ILoggerFactory>());
 
             var options = services.GetRequiredService<IOptions<SqliteCacheOptions>>();
-            options.Value.Path = options.Value.Path ?? "cache.db";
-            builder.UseSqlite("Data Source=" + options.Value.Path);
+            options.Value.Path = options.Value.Path ?? Path.Combine(AppContext.BaseDirectory, "cache.db");
+            if (options.Value.DropOnStartup && File.Exists(options.Value.Path))
+            {
+                File.Delete(options.Value.Path);
+            }
+
+            var path = Path.IsPathRooted(options.Value.Path)
+                ? options.Value.Path
+                : Path.Combine(AppContext.BaseDirectory, options.Value.Path);
+            builder.UseSqlite("Data Source=" + path);
         }
 
-        public static void EnsureSqliteCacheInitialized(this IServiceProvider services)
+        public static IServiceProvider EnsureSqliteCacheInitialized(this IServiceProvider services)
         {
             var dbContext = services.GetRequiredService<SqliteCacheContext>();
             var options = services.GetRequiredService<IOptions<SqliteCacheOptions>>();
@@ -61,11 +70,11 @@ namespace Pomelo.Caching.Sqlite
             dbContext.Database.EnsureCreated();
             if (options.Value.PurgeOnStartup)
             {
-                // dbContext.Database.EnsureDeleted();
                 dbContext.Database.ExecuteSqlRaw(DropTableSql);
             }
 
             dbContext.Database.ExecuteSqlRaw(CreateTableSql);
+            return services;
         }
     }
 }
