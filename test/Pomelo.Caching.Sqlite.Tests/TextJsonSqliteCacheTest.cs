@@ -13,13 +13,15 @@ namespace Pomelo.Caching.Sqlite.Tests
         public TextJsonSqliteCacheTest()
         {
             cache = new ServiceCollection()
-                .AddSqliteCache(conf =>
+                .AddSqliteCache(options =>
                 {
-                    conf.Path = "sqlite_cache_system.db";
-                    conf.PurgeOnStartup = false;
-                    conf.Serializer = new TextJsonSqliteCacheSerializer();
+                    options.Path = "sqlite_cache_system.db";
+                    options.DropOnStartup = false;
+                    options.PurgeOnStartup = true;
+                    options.Serializer = new TextJsonSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
+                .EnsureSqliteCacheInitialized()
                 .GetRequiredService<IMemoryCache>();
         }
 

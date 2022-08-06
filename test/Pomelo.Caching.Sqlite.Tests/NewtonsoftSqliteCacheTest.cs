@@ -14,13 +14,15 @@ namespace Pomelo.Caching.Sqlite.Tests
         public NewtonsoftSqliteCacheTest()
         {
             cache = new ServiceCollection()
-                .AddSqliteCache(conf =>
+                .AddSqliteCache(options =>
                 {
-                    conf.Path = "sqlite_cache_newtonsoft.db";
-                    conf.PurgeOnStartup = false;
-                    conf.Serializer = new NewtonsoftSqliteCacheSerializer();
+                    options.Path = "sqlite_cache_newtonsoft.db";
+                    options.DropOnStartup = false;
+                    options.PurgeOnStartup = true;
+                    options.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
+                .EnsureSqliteCacheInitialized()
                 .GetRequiredService<IMemoryCache>();
         }
 

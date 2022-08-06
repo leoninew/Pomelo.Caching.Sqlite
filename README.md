@@ -15,11 +15,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Pomelo.Caching.Sqlite;
 
-var services = new ServiceCollection()
+var cache = new ServiceCollection()
     .AddSqliteCache(conf => conf.Path = "sqlite_cache.db")
-    .BuildServiceProvider();
+    .BuildServiceProvider()
+    .EnsureSqliteCacheInitialized()
+    .GetRequiredService<IMemoryCache>();
 
-var cache = services.GetRequiredService<IMemoryCache>();
 cache.Set("time", DateTime.Now, TimeSpan.FromSeconds(10));
 
 var time = cache.Get<DateTime>("time");
@@ -28,20 +29,21 @@ var time = cache.Get<DateTime>("time");
 Newtonsoft.Json should be used for serialize and deserialize which could be changed via configure
 
 ```c#
-    .AddSqliteCache(conf =>
+    .AddSqliteCache(options =>
     {
-        conf.Path = "sqlite_cache_newtonsoft.db";
-        conf.PrugeOnStartup = false;
-        // conf.Serializer = new NewtonsoftSqliteCacheSerializer();
-        conf.Serializer = new TextJsonSqliteCacheSerializer();
+        options.Path = "sqlite_cache_newtonsoft.db";
+        options.PurgeOnStartup = true;
+        options.Serializer = new TextJsonSqliteCacheSerializer();
     })
 ```
 
 Cache key prefix is supported
 
 ```c#
-    cache.WithPrefix("preifx_");
+    cache = cache.WithPrefix("preifx_");
 ```
+
+Get more usage from [src/WebApplication1/Startup.cs](src/WebApplication1/Startup.cs)
 
 ## What you should know
 
