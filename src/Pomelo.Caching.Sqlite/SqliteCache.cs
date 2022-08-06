@@ -37,7 +37,10 @@ namespace Pomelo.Caching.Sqlite
 
         public void Dispose()
         {
-            _dbContext.Database.ExecuteSqlRaw("DELETE FROM CacheItem");
+            // var entityType = _dbContext.Model.FindEntityType(typeof(SqliteCacheItem));
+            // var schema = entityType.GetSchema();
+            // var tableName = entityType.GetTableName();
+            // _dbContext.Database.ExecuteSqlRaw($"DELETE FROM [{tableName}]");
         }
 
         public void Remove(Object key)

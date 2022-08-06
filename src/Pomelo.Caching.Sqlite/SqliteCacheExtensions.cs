@@ -9,21 +9,6 @@ namespace Pomelo.Caching.Sqlite
 {
     public static class SqliteCacheExtensions
     {
-        private const String DropTableSql = "DROP TABLE IF EXISTS [SqliteCacheItem]";
-        private const String CreateTableSql =
-@"CREATE TABLE IF NOT EXISTS [SqliteCacheItem] (
-	[Key] text NOT NULL PRIMARY KEY, 
-	[Value] text, 
-	[Type] text, 
-	[AbsoluteExpiration] text, 
-	[AbsoluteExpirationRelativeToNow] text, 
-	[SlidingExpiration] text, 
-	[Priority] integer NOT NULL, 
-	[Size] integer, 
-	[CreateAt] text NOT NULL, 
-	[UpdateAt] text
-)";
-
         public static IServiceCollection AddSqliteCache(this IServiceCollection services, Action<SqliteCacheOptions>? configureOptions = null)
         {
             services.Configure(configureOptions ?? ConfigureOptions);
@@ -39,8 +24,9 @@ namespace Pomelo.Caching.Sqlite
 
         private static void ConfigureOptions(SqliteCacheOptions options)
         {
+            options.DropOnStartup = false;
             options.PurgeOnStartup = true;
-            options.Path = "cache.db";
+            options.Path = Path.Combine(AppContext.BaseDirectory, "cache.db");
         }
 
         private static void OptionsAction(IServiceProvider services, DbContextOptionsBuilder builder)
@@ -49,11 +35,28 @@ namespace Pomelo.Caching.Sqlite
             // builder.UseLoggerFactory(services.GetRequiredService<ILoggerFactory>());
 
             var options = services.GetRequiredService<IOptions<SqliteCacheOptions>>();
-            options.Value.Path = options.Value.Path ?? "cache.db";
+            options.Value.Path = SetupPath(options.Value.Path, "sqlite.db");
+            if (options.Value.DropOnStartup && File.Exists(options.Value.Path))
+            {
+                File.Delete(options.Value.Path);
+            }
             builder.UseSqlite("Data Source=" + options.Value.Path);
         }
 
-        public static void EnsureSqliteCacheInitialized(this IServiceProvider services)
+        private static String SetupPath(String? path, String defaultName)
+        {
+            if (String.IsNullOrEmpty(path))
+            {
+                path = defaultName;
+            }
+            if (Path.IsPathRooted(path) == false)
+            {
+                path = Path.Combine(AppContext.BaseDirectory, path);
+            }
+            return path!;
+        }
+
+        public static IServiceProvider EnsureSqliteCacheInitialized(this IServiceProvider services)
         {
             var dbContext = services.GetRequiredService<SqliteCacheContext>();
             var options = services.GetRequiredService<IOptions<SqliteCacheOptions>>();
@@ -61,11 +64,11 @@ namespace Pomelo.Caching.Sqlite
             dbContext.Database.EnsureCreated();
             if (options.Value.PurgeOnStartup)
             {
-                // dbContext.Database.EnsureDeleted();
-                dbContext.Database.ExecuteSqlRaw(DropTableSql);
+                dbContext.Database.ExecuteSqlRaw(SqliteCacheContext.DropTableSql);
             }
 
-            dbContext.Database.ExecuteSqlRaw(CreateTableSql);
+            dbContext.Database.ExecuteSqlRaw(SqliteCacheContext.CreateTableSql);
+            return services;
         }
     }
 }

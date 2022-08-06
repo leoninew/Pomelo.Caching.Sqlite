@@ -14,13 +14,15 @@ namespace Pomelo.Caching.Sqlite.Tests
         public BinarySqliteCacheTest()
         {
             cache = new ServiceCollection()
-                .AddSqliteCache(conf =>
+                .AddSqliteCache(options =>
                 {
-                    conf.Path = "sqlite_cache_binary.db";
-                    conf.PurgeOnStartup = false;
-                    conf.Serializer = new BinarySqliteCacheSerializer();
+                    options.Path = "sqlite_cache_binary.db";
+                    options.DropOnStartup = false;
+                    options.PurgeOnStartup = true;
+                    options.Serializer = new BinarySqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
+                .EnsureSqliteCacheInitialized()
                 .GetRequiredService<IMemoryCache>();
         }
 

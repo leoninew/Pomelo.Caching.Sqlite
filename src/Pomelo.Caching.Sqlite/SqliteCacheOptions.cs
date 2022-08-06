@@ -5,6 +5,7 @@ namespace Pomelo.Caching.Sqlite
 {
     public class SqliteCacheOptions : IOptions<SqliteCacheOptions>
     {
+        public Boolean DropOnStartup { get; set; }
         public Boolean PurgeOnStartup { get; set; }
         public String? Path { get; set; }
         public ISqliteCacheSerializer? Serializer { get; set; }
