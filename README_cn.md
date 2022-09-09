@@ -2,8 +2,8 @@
 
 1. 添加依赖
 
-```c#
-dotnet add package Pomelo.Caching.Sqlite
+```bash
+dotnet add package Pomelo.Caching.Sqlite --version 1.2.3
 ```
 
 2. 基本使用
