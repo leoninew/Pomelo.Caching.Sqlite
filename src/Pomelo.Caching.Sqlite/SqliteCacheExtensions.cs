@@ -9,6 +9,21 @@ namespace Pomelo.Caching.Sqlite
 {
     public static class SqliteCacheExtensions
     {
+        private const String DropTableSql = "DROP TABLE IF EXISTS [SqliteCacheItem]";
+        private const String CreateTableSql =
+@"CREATE TABLE IF NOT EXISTS [SqliteCacheItem] (
+	[Key] text NOT NULL PRIMARY KEY, 
+	[Value] text, 
+	[Type] text, 
+	[AbsoluteExpiration] text, 
+	[AbsoluteExpirationRelativeToNow] text, 
+	[SlidingExpiration] text, 
+	[Priority] integer NOT NULL, 
+	[Size] integer, 
+	[CreateAt] text NOT NULL, 
+	[UpdateAt] text
+)";
+
         public static IServiceCollection AddSqliteCache(this IServiceCollection services, Action<SqliteCacheOptions>? configureOptions = null)
         {
             services.Configure(configureOptions ?? ConfigureOptions);
@@ -64,10 +79,11 @@ namespace Pomelo.Caching.Sqlite
             dbContext.Database.EnsureCreated();
             if (options.Value.PurgeOnStartup)
             {
-                dbContext.Database.ExecuteSqlRaw(SqliteCacheContext.DropTableSql);
+                // dbContext.Database.EnsureDeleted();
+                dbContext.Database.ExecuteSqlRaw(DropTableSql);
             }
 
-            dbContext.Database.ExecuteSqlRaw(SqliteCacheContext.CreateTableSql);
+            dbContext.Database.ExecuteSqlRaw(CreateTableSql);
             return services;
         }
     }
