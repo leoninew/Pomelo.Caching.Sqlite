@@ -18,7 +18,7 @@ namespace Pomelo.Caching.Sqlite.Tests
                 {
                     options.Path = "sqlite_cache_newtonsoft.db";
                     options.DropOnStartup = false;
-                    options.PurgeOnStartup = true;
+                    options.PurgeOnStartup = false;
                     options.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
@@ -52,7 +52,7 @@ namespace Pomelo.Caching.Sqlite.Tests
             var key = "CreateEntry_ThenDispose_CachingSpecified";
             cache.CreateEntry(key)
                 .SetValue("Hello")
-                .SetAbsoluteExpiration(TimeSpan.FromSeconds(1))
+                .SetAbsoluteExpiration(TimeSpan.FromSeconds(10))
                 .Dispose();
 
             var existed = cache.TryGetValue(key, out Object value);

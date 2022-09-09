@@ -18,7 +18,7 @@ namespace Pomelo.Caching.Sqlite.Tests
                 {
                     options.Path = "sqlite_cache_newtonsoft_prefix.db";
                     options.DropOnStartup = false;
-                    options.PurgeOnStartup = true;
+                    options.PurgeOnStartup = false;
                     options.Serializer = new NewtonsoftSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
