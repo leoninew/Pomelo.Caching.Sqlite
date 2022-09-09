@@ -17,7 +17,7 @@ namespace Pomelo.Caching.Sqlite.Tests
                 {
                     options.Path = "sqlite_cache_system_prefix.db";
                     options.DropOnStartup = false;
-                    options.PurgeOnStartup = true;
+                    options.PurgeOnStartup = false;
                     options.Serializer = new TextJsonSqliteCacheSerializer();
                 })
                 .BuildServiceProvider()
